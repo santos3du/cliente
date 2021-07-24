@@ -11,6 +11,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import br.com.eduardo.cliente.dto.ClientDto;
+
 @Entity
 @Table(name = "tb_client")
 public class Client implements Serializable {

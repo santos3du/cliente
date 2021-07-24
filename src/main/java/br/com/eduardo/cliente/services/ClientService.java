@@ -4,6 +4,9 @@ package br.com.eduardo.cliente.services;
 
 import java.util.Optional;
 
+import javax.persistence.EntityNotFoundException;
+
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.eduardo.cliente.dto.ClientDto;
 import br.com.eduardo.cliente.entities.Client;
 import br.com.eduardo.cliente.repository.ClientRepository;
-import br.com.eduardo.cliente.services.exception.EntityNotFoundException;
+import br.com.eduardo.cliente.services.exception.ResourceNotFoundException;
 
 @Service
 public class ClientService {
@@ -41,8 +44,26 @@ public class ClientService {
 	@Transactional(readOnly = true)
 	public ClientDto findById(Long id) {
 		Optional<Client> obj = repo.findById(id);
-		Client entity = obj.orElseThrow(() -> new EntityNotFoundException("Entity client not found"));
+		Client entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity client not found"));
 		return new ClientDto(entity);
+	}
+	
+	@Transactional
+	public ClientDto update(Long id, ClientDto dto) {
+		try {
+		Client entity = repo.getOne(id);
+		entity.setName(dto.getName());
+		entity.setCpf(dto.getCpf());
+		entity.setBirthDate(dto.getBirthDate());
+		entity.setIncome(dto.getIncome());
+		entity.setChildren(dto.getChildren());
+		
+		entity = repo.save(entity);
+		return new ClientDto(entity);
+		
+		}catch(EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Id not found" + id);
+		}
 	}
 	
 
