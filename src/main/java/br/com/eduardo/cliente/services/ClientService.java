@@ -8,6 +8,8 @@ import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.eduardo.cliente.dto.ClientDto;
 import br.com.eduardo.cliente.entities.Client;
 import br.com.eduardo.cliente.repository.ClientRepository;
+import br.com.eduardo.cliente.services.exception.DatabaseException;
 import br.com.eduardo.cliente.services.exception.ResourceNotFoundException;
 
 @Service
@@ -62,8 +65,19 @@ public class ClientService {
 		return new ClientDto(entity);
 		
 		}catch(EntityNotFoundException e) {
-			throw new ResourceNotFoundException("Id not found" + id);
+			throw new ResourceNotFoundException("Id not found " + id);
 		}
+	}
+
+	public void delete(Long id) {
+		try {
+			repo.deleteById(id);
+		}catch(EmptyResultDataAccessException e) {
+			throw new ResourceNotFoundException("Id not found " + id);
+		}catch (DataIntegrityViolationException e) {
+			throw new DatabaseException("Integrity violation");
+		}
+		
 	}
 	
 
